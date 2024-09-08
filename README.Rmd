@@ -1,0 +1,91 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# simpleEnrichr
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+simpleEnrichr is package run simple enrichment analysis
+
+## Installation
+
+You can install the development version of simpleEnrichr from [Github](https://github.com/Moonerss/simpleEnrichr) with:
+
+``` r
+install.packages('remotes')
+remotes::install_github('Moonerss/simpleEnrichr')
+```
+
+## Usage
+
+### Over-representative analysis  
+
+```{r sample}
+library(simpleEnrichr)
+```
+
+
+```{r}
+genes <- c("CANX", "HSPA1B", "KLRC2", "PSMC6", "RFXAP", "TAP1")
+res <- simple_ORA(genes, enrich.type = "KEGG")
+```
+
+run ORA enrichment analysis one time!!!
+
+
+```{r}
+res_all <- ORA_intergated(genes, enrich.type = c("KEGG", "MsigDB"))
+names(res_all)
+```
+
+### Gene set enrichment analysis
+
+```{r}
+data(geneList, package="DOSE")
+
+fit <- simple_GSEA(geneList, enrich.type = "KEGG", gene.type = "ENTREZID")
+```
+
+run GSEA enrichment analysis one time!!!
+
+```{r}
+fit_all <- GSEA_intergated(geneList, gene.type = 'ENTREZID', enrich.type = c("MsigDB", "KEGG"))
+names(fit_all)
+```
+
+### Visualization  
+
+```{r}
+ORA_dotplot(res)
+```
+
+
+```{r}
+GSEA_dotplot(fit)
+```
+
+```{r}
+GSEA_rankplot(fit, Pathway.ID = 'hsa04110')
+```
+
+```{r}
+ORA_two_barplot(res_all$KEGG, res_all$MsigDB, Selct.P = 'FDR', obj.types = c("KEGG", "MsigDB"))
+```
+
+```{r}
+GSEA_two_barplot(fit, pos.top.pathway.num = 10, neg.top.pathway.num = 10)
+```
+

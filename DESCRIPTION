@@ -1,0 +1,43 @@
+Package: simpleEnrichr
+Type: Package
+Title: simple Enrichment analysis wit R
+Version: 0.1.0
+Authors@R: 
+  person(given = "Erjie", 
+         family = "Zhao", 
+         email = "2055469819@qq.com",
+         role = c("aut", "cre"))
+Maintainer: Erjie Zhao <2055469819@qq.com>
+Description: Quick run enrichment analysis.
+License: CC0
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    cli,
+    clusterProfiler,
+    cowplot,
+    DOSE,
+    dplyr,
+    enrichplot,
+    ggplot2,
+    graphics,
+    GSVA,
+    HGNChelper,
+    Hmisc,
+    magrittr,
+    msigdbr,
+    pathview,
+    png,
+    purrr,
+    ReactomePA,
+    rlang,
+    tidyr,
+    vroom
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 2.10)
+Suggests: 
+    airway,
+    org.Hs.eg.db,
+    org.Mm.eg.db
