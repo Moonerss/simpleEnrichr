@@ -22,13 +22,13 @@ enrich_methods <- function() {
 #'                                    keyType = "SYMBOL", ont = "BP"
 #'   )
 #'   obj2 <- getEF(enrichResult = obj)
-#'   obj2@result$EnrichmentFactor
+#'   obj2@result$EnrichFactor
 #' }
 #'
 #' @export
 #'
 getEF <- function(enrichResult) {
-  enrichResult@result$EnrichmentFactor <- apply(enrichResult@result, 1, function(x) {
+  enrichResult@result$EnrichFactor <- apply(enrichResult@result, 1, function(x) {
     GeneRatio <- eval(parse(text = x["GeneRatio"]))
     BgRatio <- eval(parse(text = x["BgRatio"]))
     EF <- round(GeneRatio/BgRatio, 2)

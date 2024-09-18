@@ -22,7 +22,7 @@ Calculate enrichment factor from enrichResult (clusterProfiler).
                                    keyType = "SYMBOL", ont = "BP"
   )
   obj2 <- getEF(enrichResult = obj)
-  obj2@result$EnrichmentFactor
+  obj2@result$EnrichFactor
 }
 
 }

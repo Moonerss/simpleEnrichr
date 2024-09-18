@@ -579,8 +579,126 @@ GSEA_two_barplot <- function(enrich.obj, Selct.P = c("FDR", "P"), cutoff.P = 0.0
 }
 
 
+#' Plot barplot for enrihment result
+#' @description Plot barplot for enrihment result
+#'
+#' @param enrich.obj An object from clusterProfiler.
+#' @param x variable for x-axis, one of 'EnrichFactor', 'GeneRatio', 'pvalue', 'p.adjust', 'Count'.
+#' @param color.by Variable that used to color enriched terms, one of 'GeneRatio', 'pvalue', 'p.adjust', 'Count'.
+#' @param show.term.num A number or a list of terms. If it is a number, the first n terms will be displayed. If it is a list of terms, the selected terms will be displayed.
+#' @param label_format a numeric value sets wrap length, alternatively a custom function to format axis labels. by default wraps names longer that 30 characters.
+#' @param colors A color vector for the bars.
+#' @param color.title Title of color annotation legend.
+#' @param bar.width Width of bars.
+#' @param add.bar.border Logical. Whether to add the black border of bars.
+#' @param y.label.position Y label position. right, on or left.
+#' @param title Title of the plot.
+#' @param legend.position option of legend. 'none', 'right', 'left' or two numeric variables.
+#' @param ggtheme ggtheme of plot.
+#' @param ... Other argument of `ggplot2::theme`.
+#'
+#' @import ggplot2
+#' @importFrom dplyr desc
+#' @importFrom Hmisc capitalize
+#'
+#' @examples
+#' genes <- c("CANX", "HSPA1B", "KLRC2", "PSMC6", "RFXAP", "TAP1")
+#' res <- simple_ORA(genes, enrich.type = "GO")
+#' ORA_barplot(res$GO, y.label.position = 'on', x = 'RichFactor')
+#'
+#' @export
+#'
+ORA_barplot <- function(enrich.obj,
+                        x = "RichFactor", color.by = "p.adjust",
+                        show.term.num = 15, label_format = 30,
+                        colors = c('white', '#126536'),
+                        color.title = color.by,
+                        bar.width = 0.6, add.bar.border = FALSE,
+                        y.label.position = "right",
+                        title = NULL, legend.position = "right",
+                        ggtheme = theme_classic(),
+                        ...) {
+
+  # calculate enrich factor
+  if (!is.element('EnrichFactor',colnames(enrich.obj@result))) {
+    enrich.obj <- getEF(enrich.obj)
+  }
+
+  enrich.obj@result$GeneRatio <- apply(enrich.obj@result, 1, function(x) {
+    eval(parse(text = x["GeneRatio"]))
+  })
+  x.lab <- x
+  ## x axis
+  if (x == "pvalue") {
+    enrich.obj@result$Sig <- -log10(enrich.obj@result$pvalue)
+    x.lab <- bquote(~ -Log[10] ~ italic("P-value"))
+    x <- "Sig"
+  } else if (x == "p.adjust") {
+    enrich.obj@result$Sig <- -log10(enrich.obj@result$p.adjust)
+    x.lab <- bquote(~ -Log[10] ~ "FDR")
+    x <- "Sig"
+  }
+
+  ## color
+  if (color.by == "pvalue") {
+    enrich.obj@result$SigL <- -log10(enrich.obj@result$pvalue)
+    color.title <- bquote(~ -Log[10] ~ italic("P-value"))
+    color.by <- "SigL"
+  }
+  if (color.by == "p.adjust") {
+    enrich.obj@result$SigL <- -log10(enrich.obj@result$p.adjust)
+    color.title <- bquote(~ -Log[10] ~ "FDR")
+    color.by <- "SigL"
+  }
 
 
+  ## select term
+  show.term.num <- ifelse(nrow(enrich.obj@result) >= show.term.num,
+                          show.term.num, nrow(enrich.obj@result)
+  )
+
+  dd <- enrich.obj@result %>%
+    dplyr::arrange(.data$pvalue)
+  dd <- dd[1:show.term.num,]%>%
+    dplyr::arrange(desc(get(x)))
+
+  dd <- dplyr::mutate(dd, Description = factor(.data$Description, rev(.data$Description)))
+
+  p <- ggplot(dd) +
+    aes(x = .data[[x]], y = .data[['Description']], fill = .data[[color.by]]) +
+    geom_bar(stat = "identity", width = bar.width, alpha = 0.7, color = ifelse(add.bar.border, "black", NA)) +
+    labs(fill = color.title, x = x.lab, y = NULL, title = title) +
+    scale_fill_gradientn(colours = colors)
+
+  if (y.label.position == 'on') {
+    p <- p +
+      geom_text(aes(x = max(.data[[x]])/100, label = .data[['Description']]), hjust = 0)
+  } else {
+    p <- p +
+      scale_y_discrete(labels = Hmisc::capitalize, position = y.label.position)
+  }
+
+  p <- p +
+    ggtheme +
+    theme(axis.text.x = element_text(size = 10, colour = "black"),
+          axis.title.x = element_text(size = 13, colour = "black", face = "bold"),
+          axis.text.y = element_text(size = 13, colour = "black"),
+          axis.title = element_blank(),
+          panel.background = element_blank(),
+          legend.text = element_text(size = 11, colour = "black"),
+          legend.title = element_text(size = 13, colour = "black", face = "bold"),
+          legend.background = element_blank(),
+          legend.key = element_blank(),
+          legend.position = legend.position,
+          plot.title = element_text(hjust = 0.5, size = 14, colour = "black", face = "bold"),
+          ...)
+  if (y.label.position == 'on') {
+    p <- p +
+      theme(axis.text.y = element_blank(),
+            axis.ticks.y = element_blank())
+  }
+  return(p)
+}
 
 
 
