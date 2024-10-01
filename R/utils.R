@@ -6,6 +6,38 @@ enrich_methods <- function() {
     "MsigDB", "DO", "CGN", "DisGeNET", "CellMarker", "CMAP")
 }
 
+#' Read in gene set information from .gmt files
+#'
+#' @description
+#' This function reads in and parses information from the MSigDB's .gmt files. Pathway information will be returned as a list of gene sets.
+#'
+#' @param file The .gmt file to be read
+#'
+#' @details
+#' The .gmt format is a tab-delimited list of gene sets, where each line is a separate gene set. The first column must specify the name of the gene set, and the second column is used for a short description (which this function discards). For complete details on the .gmt format, refer to the Broad Institute's Data Format's page (url: http://www.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats).
+#'
+#' @return A list, where each index represents a separate gene set.
+#'
+#' @export
+#'
+read_gmt <- function(file) {
+
+  if (!grepl("\\.gmt$", file)[1]) {
+    stop("Pathway information must be a .gmt file")
+  }
+  geneSetDB = readLines(file)
+  geneSetDB = strsplit(geneSetDB, "\t")
+  names(geneSetDB) = sapply(geneSetDB, "[", 1)
+  geneSetDB = lapply(geneSetDB, "[", -1:-2)
+  geneSetDB = lapply(geneSetDB, function(x) {
+    x[which(x != "")]
+  })
+  return(geneSetDB)
+}
+
+
+
+
 #' Calculate enrichment factor from enrichResult
 #'
 #' @description
