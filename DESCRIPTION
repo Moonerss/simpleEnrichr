@@ -13,6 +13,7 @@ License: CC0
 Encoding: UTF-8
 LazyData: true
 Imports: 
+    BiocParallel,
     cli,
     clusterProfiler,
     cowplot,
@@ -21,7 +22,7 @@ Imports:
     enrichplot,
     ggplot2,
     graphics,
-    GSVA,
+    GSVA (>= 1.52.3),
     HGNChelper,
     Hmisc,
     magrittr,
@@ -36,7 +37,7 @@ Imports:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 2.10)
+    R (>= 4.3)
 Suggests: 
     airway,
     org.Hs.eg.db,

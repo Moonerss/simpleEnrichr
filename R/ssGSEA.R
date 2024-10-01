@@ -10,29 +10,33 @@
 #' in the case of zscore, it combines them together as their sum divided by the square-root of the size of the gene set,
 #' while in the case of plage they are used to calculate the singular value decomposition (SVD) over the genes in the
 #' gene set and use the coefficients of the first right-singular vector as pathway activity profile.
+#' @param verbose Gives information about each calculation step. Default: \code{TRUE}.
+#' @param BPPARAM An object of class [`BiocParallelParam`] specifying parameters
+#'   related to the parallel execution of some of the tasks and calculations
+#'   within this function.
 #'
-#' @importFrom GSVA gsva
+#' @importFrom GSVA gsva ssgseaParam gsvaParam plageParam plageParam
+#' @importFrom BiocParallel SerialParam
 #'
 #' @export
 #'
-simple_ssgsea <- function(exp, gene.list, method = c("ssgsea", "gsva", "zscore", "plage")) {
+simple_ssgsea <- function(exp, gene.list, method = c("ssgsea", "gsva", "zscore", "plage"), verbose = TRUE, BPPARAM = SerialParam(progressbar = verbose)) {
 
   method <- match.arg(method)
+  method_cmd <- switch(method,
+                       ssgsea = ssgseaParam,
+                       gsva = gsvaParam,
+                       zscore = plageParam,
+                       plage = plageParam
+  )
+  if (method == 'gsva') {
+    param <- method_cmd(exprData = as.matrix(exp), geneSets = gene.list, kcdf = "Gaussian")
+  } else {
+    param <- method_cmd(exprData = as.matrix(exp), geneSets = gene.list)
+  }
   cli::cli_alert_info('Run gene set score use method: {.val {method}}')
-  if (method == "ssgsea") {
-    score <- as.data.frame(t(GSVA::gsva(as.matrix(exp), gene.list, method == "ssgsea")))
-  }
-  if (method == "gsva") {
-    score <- as.data.frame(t(GSVA::gsva(as.matrix(exp),
-                                        gene.list, method = "gsva", kcdf = "Gaussian", abs.ranking = F,
-                                        min.sz = 1, max.sz = Inf, mx.diff = T, verbose = T)))
-  }
-  if (method == "zscore") {
-    score <- as.data.frame(t(GSVA::gsva(as.matrix(exp), gene.list, method = "zscore")))
-  }
-  if (method == "plage") {
-    score <- as.data.frame(t(GSVA::gsva(as.matrix(exp), gene.list, method = "plage")))
-  }
+  score <- as.data.frame(t(GSVA::gsva(param = param, verbose = verbose, BPPARAM = BPPARAM)))
+
   return(score)
 
 }

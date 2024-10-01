@@ -4,7 +4,13 @@
 \alias{simple_ssgsea}
 \title{Generate single-sample gene-set enrichment score}
 \usage{
-simple_ssgsea(exp, gene.list, method = c("ssgsea", "gsva", "zscore", "plage"))
+simple_ssgsea(
+  exp,
+  gene.list,
+  method = c("ssgsea", "gsva", "zscore", "plage"),
+  verbose = TRUE,
+  BPPARAM = SerialParam(progressbar = verbose)
+)
 }
 \arguments{
 \item{exp}{Numeric matrix containing the expression data or gene expression signatures, with samples in columns and genes in rows.}
@@ -17,6 +23,12 @@ The latter two standardize first expression profiles into z-scores over the samp
 in the case of zscore, it combines them together as their sum divided by the square-root of the size of the gene set,
 while in the case of plage they are used to calculate the singular value decomposition (SVD) over the genes in the
 gene set and use the coefficients of the first right-singular vector as pathway activity profile.}
+
+\item{verbose}{Gives information about each calculation step. Default: \code{TRUE}.}
+
+\item{BPPARAM}{An object of class \code{\link{BiocParallelParam}} specifying parameters
+related to the parallel execution of some of the tasks and calculations
+within this function.}
 }
 \description{
 Estimate gene-set enrichment score across all samples.
