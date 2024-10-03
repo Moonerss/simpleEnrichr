@@ -628,6 +628,7 @@ ORA_barplot <- function(enrich.obj,
     eval(parse(text = x["GeneRatio"]))
   })
   x.lab <- x
+  color.by <- color.by
   ## x axis
   if (x == "pvalue") {
     enrich.obj@result$Sig <- -log10(enrich.obj@result$pvalue)

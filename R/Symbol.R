@@ -19,11 +19,12 @@
 update_symbol <- function(genes, species = c('Human', 'Mouse'), unmapGene_keep = F) {
   species <- match.arg(species)
   species <- ifelse(species == 'Human', 'human', 'mouse')
-  ann <- checkGeneSymbols(genes, species = species, unmapped.as.na = unmapGene_keep) %>%
+  ann <- suppressWarnings(checkGeneSymbols(genes, species = species, unmapped.as.na = unmapGene_keep)) %>%
     na.omit() %>%
     dplyr::select(-.data$Approved)
   colnames(ann) <- c("ID", "Symbol")
   if (sum(grepl("///", ann$Symbol)) > 0) {
+    cli::cli_alert_warning(cli::col_br_yellow('There have genes mapped to more than one suggested symbol, we only keep the first one ...'))
     ann1 <- ann[!grepl("///", ann$Symbol), ]
     ann2 <- ann[grepl("///", ann$Symbol), ]
     ann2 <- lapply(ann2$Symbol, function(x) {
@@ -35,7 +36,7 @@ update_symbol <- function(genes, species = c('Human', 'Mouse'), unmapGene_keep =
         kk$Symbol <- d
         return(kk)
       })
-      tmp2 <- Reduce(rbind, tmp2)
+      tmp2 <- tmp2[[1]]
       return(tmp2)
     })
     ann2 <- Reduce(rbind, ann2) %>%
