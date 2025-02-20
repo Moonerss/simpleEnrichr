@@ -50,7 +50,7 @@ simple_ORA <- function(genes, background.genes = NULL, gene.type = "SYMBOL",
     cli::cli_alert_info("Updating gene symbols...")
     genes <- suppressWarnings(update_symbol(genes = genes, species = organism, unmapGene_keep = T)[[2]])
     if (!is.null(background.genes)) {
-      background.genes <- suppressWarnings(update_symbol(genes = stats::na.omit(background.genes), unmapGene_keep = T)[[2]])
+      background.genes <- suppressWarnings(update_symbol(genes = stats::na.omit(background.genes), species = organism, unmapGene_keep = T)[[2]])
     }
   }
   if (organism == "Human") {
@@ -302,7 +302,9 @@ simple_ORA <- function(genes, background.genes = NULL, gene.type = "SYMBOL",
     cli::cli_alert_info("{.val {nrow(res)}} significant terms were detected...")
   }
   if (enrich.type != "GO") {
-    res <- DOSE::setReadable(res, OrgDb = OrgDb, keyType = "ENTREZID")
+    if (!is.null(res)) {
+      res <- DOSE::setReadable(res, OrgDb = OrgDb, keyType = "ENTREZID")
+    }
   }
   cli::cli_alert_success("Done!")
   return(res)
